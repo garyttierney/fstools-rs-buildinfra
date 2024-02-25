@@ -1,0 +1,70 @@
+apiVersion: skaffold/v4beta9
+kind: Config
+metadata:
+  name: fromsoft-tools-infra
+build:
+  artifacts:
+    - image: fstools.azurecr.io/fstools-build
+      custom:
+        # environment variable $IMG2 will be set to the build of image2
+        buildCommand: |
+          docker build --tag=$IMAGE -f actions-runner/Dockerfile
+          if [[ "$PUSH_IMAGE" -eq "true" ]]; then
+            docker push $IMAGE
+          fi
+  local:
+    useDockerCLI: true
+
+manifests:
+  rawYaml: 
+    - actions-runner/test-data-storage.pvc.yml
+
+deploy:
+  helm:
+    releases:
+    - name: arc-runner-set
+      remoteChart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      namespace: github-arc-runners
+      upgradeOnChange: true
+      createNamespace: true
+      setValueTemplates:
+        githubConfigSecret:
+          github_token: "{{.GITHUB_TOKEN}}"
+        template:
+          spec:
+            containers:
+              - name: runner
+                image: "{{.IMAGE_REPO_fstools_azurecr_io_fstools_build}}:{{.IMAGE_TAG_fstools_azurecr_io_fstools_build}}@{{.IMAGE_DIGEST_fstools_azurecr_io_fstools_build}}"
+      setValues:
+        githubConfigUrl: https://github.com/soulsmods/fstools-rs
+        template:
+          spec:
+            tolerations:
+            - key: "kubernetes.azure.com/scalesetpriority"
+              operator: "Equal"
+              value: "spot"
+              effect: "NoSchedule"
+            - key: "sku"
+              operator: "Equal"
+              value: "workloads"
+              effect: "NoSchedule"
+            nodeSelector:
+              usage: workloads
+
+            containers:
+            - name: runner
+              imagePullPolicy: Always
+              command: ["/home/runner/run.sh"]
+              env:
+              - name: ACTIONS_RUNNER_POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              volumeMounts:
+                - mountPath: "/opt/test-data"
+                  name: test-data
+                  readOnly: true
+            volumes:
+              - name: test-data
+                persistentVolumeClaim:
+                  claimName: fstools-test-data
