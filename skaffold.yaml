@@ -5,16 +5,8 @@ metadata:
 build:
   artifacts:
     - image: fstools.azurecr.io/fstools-build
-      custom:
-        # environment variable $IMG2 will be set to the build of image2
-        buildCommand: |
-          docker build --tag=$IMAGE -f actions-runner/Dockerfile
-          if [[ "$PUSH_IMAGE" -eq "true" ]]; then
-            docker push $IMAGE
-          fi
-  local:
-    useDockerCLI: true
-
+      docker:
+        dockerfile: actions-runner/Dockerfile
 manifests:
   rawYaml: 
     - actions-runner/test-data-storage.pvc.yml
