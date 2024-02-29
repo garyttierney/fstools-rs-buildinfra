@@ -24,6 +24,7 @@ deploy:
     releases:
     - name: arc-runner-set
       remoteChart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      version: "0.8.2"
       namespace: github-arc-runners
       upgradeOnChange: true
       createNamespace: true
