@@ -50,4 +50,4 @@ jobs:
 
       - name: "Build, test, and deploy"
         run: |
-          skaffold run -v trace
+          skaffold run -v info --check-cluster-node-platforms=false
