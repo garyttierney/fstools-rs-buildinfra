@@ -5,6 +5,7 @@ metadata:
 build:
   artifacts:
     - image: fstools.azurecr.io/fstools-build
+      platforms: ["linux/amd64"]
       docker:
         dockerfile: actions-runner/Dockerfile
 manifests:
