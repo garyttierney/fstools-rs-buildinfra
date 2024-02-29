@@ -8,8 +8,7 @@ build:
       platforms: ["linux/amd64"]
       docker:
         dockerfile: actions-runner/Dockerfile
-  local:
-    useDockerCLI: true
+  local: {}
 manifests:
   rawYaml: 
     - actions-runner/test-data-storage.pvc.yml
