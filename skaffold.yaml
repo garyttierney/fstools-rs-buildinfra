@@ -23,15 +23,14 @@ deploy:
       upgradeOnChange: true
       createNamespace: true
       setValueTemplates:
-        githubConfigSecret:
-          github_token: "{{.GITHUB_TOKEN}}"
         template:
           spec:
             containers:
               - name: runner
                 image: "{{.IMAGE_REPO_fstools_azurecr_io_fstools_build}}:{{.IMAGE_TAG_fstools_azurecr_io_fstools_build}}@{{.IMAGE_DIGEST_fstools_azurecr_io_fstools_build}}"
       setValues:
-        githubConfigUrl: https://github.com/soulsmods/fstools-rs
+        githubConfigSecret: gh-app-token
+        githubConfigUrl: https://github.com/garyttierney/fstools-rs
         template:
           spec:
             tolerations:
